@@ -223,7 +223,9 @@
     async function handle(task, clipping) {
         switch(task.type){
             case 'text': await downloadTextToFile(task, clipping); break;
-            case 'url' : await downloadUrlToFile(task, clipping); break;
+            //case 'url' : await downloadUrlToFile(task, clipping); break;
+            case 'url' : await fetchAndDownload(task, clipping); break;
+            case 'blob': await downloadBlobToFile(task, clipping); break;
         }
     }
 
@@ -250,6 +252,43 @@
       const isDownloaded = await objCom.URLDownloadToFile(task.url, filename, isImage);
       downloadCompleted(task, isDownloaded, clipping);
       return isDownloaded;
+    }
+
+    /**
+     * Save blob to file
+     */
+    async function downloadBlobToFile(task, clipping){
+        const objCom = state.objCom;
+        const blob = task.blob;
+        const filename = [state.tempPath, task.filename].join('/');
+        const blobBase64 = await blobToBase64(blob);
+        const isDownloaded = await objCom.BlobDownloadToFile(blobBase64, filename, false);
+        downloadCompleted(task, isDownloaded, clipping);
+        return isDownloaded;
+    }
+
+    async function blobToBase64(blob) {
+        return new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                resolve(reader.result.replace(/^data:.+;base64,/, ''));
+            }
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    async function fetchAndDownload(task, clipping) {
+        Log.debug('fetch', task.url);
+        try {
+            const blob = await Fetcher.get('blob', task.url, task.headers);
+            await downloadBlobToFile({
+                blob: blob,
+                filename: task.filename
+            }, clipping);
+        } catch (err) {
+            LOG.error(err);
+            SavingTool.taskFailed(task.filename, err.message);
+        }
     }
 
     /**
