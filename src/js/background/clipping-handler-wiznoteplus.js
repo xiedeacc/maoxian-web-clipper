@@ -11,10 +11,11 @@
     root.MxWcClippingHandler_WizNotePlus = factory(
       root.MxWcLog,
       root.MxWcStorage,
-      root.MxWcSavingTool
+      root.MxWcSavingTool,
+      root.MxWcFetcher
     );
   }
-})(this, function(Log, MxWcStorage, SavingTool, undefined) {
+})(this, function(Log, MxWcStorage, SavingTool, Fetcher, undefined) {
     "use strict";
 
     const state = {
@@ -262,7 +263,7 @@
         const blob = task.blob;
         const filename = [state.tempPath, task.filename].join('/');
         const blobBase64 = await blobToBase64(blob);
-        const isDownloaded = await objCom.BlobDownloadToFile(blobBase64, filename, false);
+        const isDownloaded = await objCom.Base64ToFile(blobBase64, filename);
         downloadCompleted(task, isDownloaded, clipping);
         return isDownloaded;
     }
@@ -280,13 +281,17 @@
     async function fetchAndDownload(task, clipping) {
         Log.debug('fetch', task.url);
         try {
-            const blob = await Fetcher.get('blob', task.url, task.headers);
+            const blob = await Fetcher.get(task.url, {
+                respType: 'blob',
+                headers: task.headers,
+                timeout: task.timeout,
+              });
             await downloadBlobToFile({
                 blob: blob,
                 filename: task.filename
             }, clipping);
         } catch (err) {
-            LOG.error(err);
+            Log.error(err);
             SavingTool.taskFailed(task.filename, err.message);
         }
     }
