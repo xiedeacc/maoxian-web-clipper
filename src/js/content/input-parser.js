@@ -2,6 +2,7 @@
 
   import Default from './input-parser-default.js';
   import WizNotePlus from './input-parser-wiznoteplus.js';
+  import ZipInputParser from './input-parser-zip.js';
 
   // params: {format, title, category, tags, domain, link, config}
   function parse(params) {
@@ -9,8 +10,9 @@
     switch(config.clippingHandler) {
       case 'Browser':
       case 'NativeApp':
-      case 'Zip':
         return Default.parse(params);
+      case 'Zip':
+        return ZipInputParser.parse(params);
       case 'WizNotePlus':
         return WizNotePlus.parse(params);
     }

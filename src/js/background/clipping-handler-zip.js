@@ -3,6 +3,8 @@
 import SavingTool from './saving-tool.js';
 import Fetcher from './fetcher.js';
 import JSZip from 'jszip';
+import ExtApi from '../lib/ext-api.js';
+import FileSaver from 'file-saver';
 
 function handleTask(task) {
   return new Promise((resolve, reject) => {
@@ -62,15 +64,20 @@ const ClippingHandler_Zip = {
     });
   },
 
-  saveClipping: (clipping, feedback) => {
+  saveClipping: async (clipping, feedback) => {
     SavingTool.startSaving(clipping, feedback, { mode: 'completeWhenAllTaskFinished' });
     const promises = clipping.tasks.map((task) => handleTask(task, clipping));
     const zip = new JSZip();
-    //TODO: use clipping title as foldername
-    const subfolder = zip.folder(clipping.info.title);
-    Promise.all(promises).then(fileObj => {
-      subfolder.file(fileObj.filename, fileObj.blob);
-    });
+    const files = await Promise.all(promises);
+
+    files.reduce((zipfile, fileObj) => {
+      zipfile.file(fileObj.filename, fileObj.blob);
+      return zipfile;
+    }, zip);
+
+    zip.generateAsync({type: "blob"}).then(zipblob => {
+      FileSaver.saveAs(zipblob, clipping.info.title + ".zip");
+    })
   },
 
   handleClippingResult: it => {

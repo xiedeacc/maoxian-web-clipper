@@ -135,6 +135,14 @@
     );
   }
 
+  // section: handler-zip
+  function initSettingHandlerZip(config) {
+    initCheckboxInput(config,
+      'handler-zip-enabled',
+      'handlerZipEnabled'
+    );
+  }
+
   // section: handler-WizNotePlus
   function initSettingHandlerWizNotePlus(config) {
     initCheckboxInput(config,
@@ -572,6 +580,9 @@
       case 'setting-handler-native-app':
         render = renderSectionHandlerNativeApp;
         break;
+      case 'setting-handler-zip':
+        render = renderSectionHandlerZip;
+        break;
       case 'setting-handler-wiz-note-plus':
         render = renderSectionHandlerWizNotePlus;
         break;
@@ -792,6 +803,14 @@
         msg = msg.replace('$MESSAGE', info.message);
         renderNoticeBox(section, 'danger', msg);
       }
+    });
+  }
+
+  function renderSectionHandlerZip(id, container, template) {
+    const html = template;
+    T.setHtml(container, html);
+    MxWcConfig.load().then((config) => {
+      initSettingHandlerZip(config);
     });
   }
 
