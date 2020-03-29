@@ -9,6 +9,7 @@
     switch(config.clippingHandler) {
       case 'Browser':
       case 'NativeApp':
+      case 'Zip':
         return Default.parse(params);
       case 'WizNotePlus':
         return WizNotePlus.parse(params);

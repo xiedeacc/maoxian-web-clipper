@@ -11,6 +11,7 @@
       handlerBrowserEnabled: true,
       handlerNativeAppEnabled: false,
       handlerWizNotePlusEnabled: false,
+      handlerZipEnabled: true,
 
       //=====================================
       // General

@@ -6,6 +6,7 @@
   import ClippingHandler_Browser from './clipping-handler-browser.js';
   import ClippingHandler_NativeApp from './clipping-handler-native-app.js';
   import ClippingHandler_WizNotePlus from './clipping-handler-wiznoteplus.js';
+  import ClippingHandler_Zip from './clipping-handler-zip.js';
 
 
   function initialize() {
@@ -37,6 +38,9 @@
         break;
       case 'WizNotePlus':
         return ClippingHandler_WizNotePlus;
+        break;
+      case 'Zip':
+        return ClippingHandler_Zip;
         break;
       default:
         // console.debug("Name illegal: ", name);
